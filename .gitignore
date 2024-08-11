@@ -1,3 +1,4 @@
 index.js
 .hintrc
+.env
 package-lock.json

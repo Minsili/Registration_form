@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql2");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const app = express();
 const port = 3000;
@@ -36,49 +37,14 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
-// Initialize MySQL database connection
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "registration_db",
-});
-
-db.connect((err) => {
-  if (err) {
-    console.error("Error connecting to MySQL:", err.message);
-    return;
-  }
-  console.log("Connected to MySQL database.");
-
-  db.query(
-    `CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        surname VARCHAR(255) NOT NULL,
-        degree VARCHAR(255) NOT NULL,
-        diplomaFile VARCHAR(255) NOT NULL,
-        transcriptFile VARCHAR(255) NOT NULL,
-        inscriptionFile VARCHAR(255) NOT NULL
-    )`,
-    (err) => {
-      if (err) {
-        console.error("Error creating table:", err.message);
-      } else {
-        console.log("Table created or already exists.");
-      }
-    }
-  );
-});
-
 // Configure nodemailer transporter
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false, // use SSL/TLS
   auth: {
-    user: "dianeminou2@gmail.com",
-    pass: "waoh boys gone rufx",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
@@ -116,83 +82,48 @@ app.post(
         .json({ success: false, message: "Missing form fields." });
     }
 
-    // Insert data into the database
-    db.query(
-      `INSERT INTO users (name, surname, degree, diplomaFile, transcriptFile, inscriptionFile)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, sname, degree, diplomaFile, transcriptFile, inscriptionFile],
-      (err) => {
-        if (err) {
-          console.error("Error inserting data:", err.message);
-          return res
-            .status(500)
-            .json({ success: false, message: "Registration failed." });
-        }
-        console.log("Data inserted:", {
-          name,
-          sname,
-          degree,
-          diplomaFile,
-          transcriptFile,
-          inscriptionFile,
-        });
-
-        // Send email with user registration details
-        const mailOptions = {
-          from: "dianeminou2@gmail.com", // Sender's email address
-          to: "dianeminou2@gmail.com", // Recipient's email address
-          subject: "New User Registration",
-          text: `A new user has registered with the following details:
+    // Send email with user registration details
+    const mailOptions = {
+      from: process.env.EMAIL_USER, // Sender's email address
+      to: process.env.EMAIL_USER, // Recipient's email address
+      subject: "New User Registration",
+      text: `A new user has registered with the following details:
                   Name: ${name}
                   Surname: ${sname}
                   Degree: ${degree}
                   Diploma File: ${diplomaFile}
                   Transcript File: ${transcriptFile}
                   Inscription File: ${inscriptionFile}`,
-          // Optionally, you can attach files
-          attachments: [
-            {
-              filename: diplomaFile,
-              path: path.join(__dirname, "uploads", diplomaFile),
-            },
-            {
-              filename: transcriptFile,
-              path: path.join(__dirname, "uploads", transcriptFile),
-            },
-            {
-              filename: inscriptionFile,
-              path: path.join(__dirname, "uploads", inscriptionFile),
-            },
-          ],
-        };
+      // Optionally, you can attach files
+      attachments: [
+        {
+          filename: diplomaFile,
+          path: path.join(__dirname, "uploads", diplomaFile),
+        },
+        {
+          filename: transcriptFile,
+          path: path.join(__dirname, "uploads", transcriptFile),
+        },
+        {
+          filename: inscriptionFile,
+          path: path.join(__dirname, "uploads", inscriptionFile),
+        },
+      ],
+    };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            console.error("Error sending email:", error.message);
-            return res.status(500).json({
-              success: false,
-              message: "Registration successful, but failed to send email.",
-            });
-          }
-          console.log("Email sent:", info.response);
-          res.json({ success: true, message: "Registration successful!" });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error.message);
+        return res.status(500).json({
+          success: false,
+          message: "Registration successful, but failed to send email.",
         });
       }
-    );
+      console.log("Email sent:", info.response);
+      res.json({ success: true, message: "Registration successful!" });
+    });
   }
 );
-
-// Retrieve Data from the db in JSON format
-app.get("/users", (req, res) => {
-  db.query(`SELECT * FROM users`, [], (err, rows) => {
-    if (err) {
-      console.error("Error fetching data:", err.message);
-      res.status(500).send("Error fetching data.");
-    } else {
-      res.json(rows);
-    }
-  });
-});
 
 // Start the server
 app.listen(port, () => {
