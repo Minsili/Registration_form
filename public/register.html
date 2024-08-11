@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+    <main>
+        <div class="container">
+            <div class="head">
+                <div id="logo">
+                    <img src="images/logo_work0.jpeg" alt="logo-image">
+                </div>
+                <div class="language-switcher">
+                    <select id="language-select">
+                        <option value="en">En</option>
+                        <option value="fr">Fr</option>
+                    </select>
+                </div>
+            </div>
+            
+            <form id="registrationForm" action="/register" method="POST" enctype="multipart/form-data" autocomplete="off">
+                <div class="form-headers">
+                    <h2>Registration Form</h2>
+                    <p>Enter your details below to complete your registration.</p>
+                </div>
+
+                <div class="form-info">
+                    <div class="info-detail">
+                        <label for="name">Name</label>
+                        <input type="text" name="name" id="name" placeholder="Enter your name" required>
+                    </div>
+                    <div class="info-detail">
+                        <label for="sname">Surname</label>
+                        <input type="text" name="sname" id="sname" placeholder="Enter your surname" required>
+                    </div>
+                    <div class="info-detail">
+                        <label for="degree">Highest Degree</label>
+                        <select name="degree" id="degree" required>
+                            <option value="">Select your highest degree</option>
+                            <option value="highschool">High School Diploma</option>
+                            <option value="associate">Associate Degree</option>
+                            <option value="bachelor">Bachelor's Degree</option>
+                            <option value="master">Master's Degree</option>
+                            <option value="mba">MBA</option>
+                            <option value="phd">PhD</option>
+                            <option value="md">MD</option>
+                            <option value="jd">JD</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="info-detail">
+                        <label for="diploma">Diploma File</label>
+                        <input type="file" name="diploma" id="diploma" placeholder="Upload your diploma file" required>
+                    </div>
+                    <div class="info-detail">
+                        <label for="transcript">Transcript</label>
+                        <input type="file" name="transcript" id="transcript" placeholder="Upload your transcript file" required>
+                    </div>
+                    <div class="info-detail">
+                        <label for="inscription">Inscription Demand</label>
+                        <input type="file" name="inscription" id="inscription" placeholder="Upload your demand of inscription" required>
+                    </div>
+                </div>
+                <div class="btn">
+                    <input type="submit" value="Register">
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
